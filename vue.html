@@ -1,5 +1,4 @@
- <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-<!-- For PROD <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script> -->
+ <script src="https://unpkg.com/vue/dist/vue.global.js"></script>
 <script src="https://cdn.tailwindcss.com"></script>
 
 <div id="app">
@@ -10,7 +9,7 @@
                     <div note="SelectPlayer">
                         <select v-if="currentPlayerInfo" v-model="currentPlayerInfo" @change="changePlayer">
                             <option :value="{}" disabled selected>Select Player</option>
-                            <option v-for="(item, key) in playerList" :value="item">
+                            <option v-for="(item, key) in playerList" :value="item" :key="key">
                                 {{item.name}}
                             </option>
                         </select>
@@ -19,7 +18,7 @@
                     <div note="SelectPlayerLevel">
                         <select v-model="currentLevel" @change="calculateStats">
                             <option disabled selected>Select Level</option>
-                            <option v-for="index in 60" :value="index">
+                            <option v-for="index in 60" :value="index" :key="index">
                                 Level {{index}}
                             </option>
                         </select>
@@ -71,7 +70,7 @@
                     <div>
                         <select v-if="currentEnemyInfo" v-model="currentEnemyInfo">
                             <option :value="{}" disabled selected>Select Enemy</option>
-                            <option v-for="(item, key) in enemyList" :value="item">
+                            <option v-for="(item, key) in enemyList" :value="item" :key="key">
                                 {{item.name}}
                             </option>
                         </select>
@@ -121,15 +120,15 @@
                 <div class="m-2">
                     <select v-model="currentAdditionHits">
                         <option value="" disabled selected>Addition Hits</option>
-                        <option v-for="index in additionHitsList" :value="index">
-                            {{ index - 1 }}
+                        <option v-for="(index, key) in additionHitsList" :value="index" :key="key">
+                            {{ key }}
                         </option>
                     </select>
                 </div>
                 <div class="m-2">
                     <select v-model="currentDAdditionHits">
                         <option value="" disabled selected>D'Attack Hits</option>
-                        <option v-for="index in 5" :value="index">
+                        <option v-for="index in 5" :value="index"  :key="index">
                             {{index}}
                         </option>
                     </select>

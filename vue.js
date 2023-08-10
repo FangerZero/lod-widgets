@@ -120,14 +120,14 @@ const additionLevelList = ref([]);
 const updateAdditionLevelList = () => {
     currentAdditionLevel.value = 0;
     additionLevelList.value = currentAddition.value.levels;
-}
+};
 
 const currentDAdditionHits = ref("")
 const currentAdditionHits = ref("");
 const additionHitsList = ref([]);
 const updateAdditionHitsList = () => {
     additionHitsList.value = currentAddition?.value?.hits.length || "";
-}
+};
 
 const elements = ref(['None', 'Dark', 'Earth', 'Fire', 'Light', 'Thunder', 'Water', 'Wind']);
 const currentFieldElement = ref("");
@@ -141,7 +141,7 @@ const hasAllData = () => {
     if (!currentAdditionLevel?.value && !currentDragoonLevel?.value) return false;
     if (!currentWeapon?.value) return false;
     return true;
-}
+};
 
 ////////////////////////////////////////////////////
 // Damage Formula
@@ -199,13 +199,14 @@ const calculateDamage = () => {
 
     if (currentDragoonAttack?.value && currentDragoonLevel?.value) {
         // Determine Physical Attack vs Magical Attack 
-        const dAttack = currentDragoonAttack.value === "physical" ? attack.value : attackMagic.value;
-        const enemyDef = currentDragoonAttack.value === "physical" ? currentEnemyInfo.value.defense : currentEnemyInfo.value['magical-defense'];
+        const isPhysicial = currentDragoonAttack.value === "physical" || currentDragoonAttack?.value?.spell?.includes('D-Attack');
+        const dAttack = isPhysicial ? attack.value : attackMagic.value;
+        const enemyDef = isPhysicial ? currentEnemyInfo.value.defense : currentEnemyInfo.value['magical-defense'];
         
-        const dLevelInfo = currentDragoonAttack?.value?.element?.search(/divine/i) ? currentPlayerInfo.value.dragoon[1].levels[currentDragoonLevel.value - 1] : currentPlayerInfo.value.dragoon[0].levels[currentDragoonLevel.value - 1];
+        const dLevelInfo = currentDragoonAttack?.value?.element?.includes('Divine') ? currentPlayerInfo.value.dragoon[1].levels[1] : currentPlayerInfo.value.dragoon[0].levels[currentDragoonLevel.value - 1];
         //const dLevelInfo = currentPlayerInfo.value.dragoon[0].levels[currentDragoonLevel.value - 1];
         // Spell/Weapon Element
-        const dAttackElement = currentDragoonAttack.value === "physical" ? "None" : dLevelInfo.element;
+        const dAttackElement = isPhysicial ? "None" : dLevelInfo.element;
         let dWeaponElementBonus = 0;
         if (opposingElements[currentEnemyInfo.value.element] === dAttackElement) {
             dWeaponElementBonus = 100;
@@ -221,7 +222,7 @@ const calculateDamage = () => {
             dDragoonFieldBonus = 50
         }
         
-        const dDragoonModifierBonus = currentDragoonAttack.value === "physical" ? dLevelInfo.attack : dLevelInfo.attackMagic;
+        const dDragoonModifierBonus = isPhysicial ? dLevelInfo.attack : dLevelInfo.attackMagic;
         const dMaxHitPercent = currentDAdditionHits.value === "" ? 200 : [100, 110, 130, 160, 200][currentDAdditionHits.value - 1]; // Dragoon Default 200
        
         dDamage.value = formula(dMaxHitPercent, dDragoonModifierBonus, dAttack, currentLevel.value, enemyDef, dWeaponElementBonus, ppu, epd, dDragoonFieldBonus);
@@ -229,26 +230,25 @@ const calculateDamage = () => {
 };
 
 const formula = (maxHitPercent, dModifierBonus, atk, lv, def, elementBonus, ppu, epd, fieldBonus) => {
-    console.log('Formula - atk: ', atk);
     // Actual Calculation 
     const FIRST = Math.floor(Number(maxHitPercent) * Number(dModifierBonus) / 100);
-     console.log('FIRST', FIRST);
+    // console.log('FIRST', FIRST);
     const SECOND = Math.floor((FIRST * atk) / 100);
-     console.log('SECOND', SECOND);
+    // console.log('SECOND', SECOND);
     const THIRD = Math.round((SECOND * (+lv + 5) * 5) / def);
-     console.log('THIRD', THIRD);
+    // console.log('THIRD', THIRD);
     const FOURTH = Math.floor((THIRD * (100 + +elementBonus)) / 100);
-     console.log('FOURTH', FOURTH);
+    // console.log('FOURTH', FOURTH);
     const FIFTH = Math.floor((FOURTH * (100 + +ppu + +epd)) / 100);
-     console.log('FIFTH', FIFTH);
+    // console.log('FIFTH', FIFTH);
     const SIXTH = Math.floor((FIFTH * (100 + +fieldBonus)) / 100);
-     console.log('SIXTH', SIXTH);
+    // console.log('SIXTH', SIXTH);
     const SEVENTH = playerFearful.value ? Math.floor(SIXTH / 2) : SIXTH;
-     console.log('SEVENTH', SEVENTH);
+    // console.log('SEVENTH', SEVENTH);
     const EIGHTH = enemyFearful.value ? Math.floor(SEVENTH * 2) : SEVENTH;
-     console.log('EIGHTH', EIGHTH);
+    // console.log('EIGHTH', EIGHTH);
     return EIGHTH || 0;
-}
+};
 
 createApp({
     setup() {
