@@ -80,20 +80,21 @@ const changePlayer = () => {
 };
 
 const calculateStats = () => {
+    const tempCurrentLevel = currentPlayerInfo.value.levels.filter(lv => lv.level === currentLevel.value)[0];
     // Attack (Base Stats + Weapon + Accessory)
-    const tempLevelAtk = currentPlayerInfo.value.levels[currentLevel.value - 1].attack || 0; // Index Correction
+    const tempLevelAtk = tempCurrentLevel.attack || 0; // Index Correction
     const tempWeaponAtk = currentWeapon?.value?.attack || 0;
     const tempAccessoryAtk = currentAccessory?.value?.attack || 0;
     attack.value = +tempLevelAtk + +tempWeaponAtk + +tempAccessoryAtk;
 
     // Attack Magic (Base Stats + Helm + Accessory)
-    const tempLevelAtkMag = currentPlayerInfo.value.levels[currentLevel.value - 1].attackMagic || 0; // Index Correction
+    const tempLevelAtkMag = tempCurrentLevel.attackMagic || 0; // Index Correction
     const tempHelmAtkMag = currentHelm?.value?.attackMagic || 0;
     const tempAccessoryAtkMag = currentAccessory?.value?.attackMagic || 0;
     attackMagic.value = +tempLevelAtkMag + +tempHelmAtkMag + +tempAccessoryAtkMag;
 
     // Defense (Base Stats + Helm + Armor + Boots + Accessory)
-    const tempLevelDef = currentPlayerInfo.value.levels[currentLevel.value - 1].defense || 0; // Index Correction
+    const tempLevelDef = tempCurrentLevel.defense || 0; // Index Correction
     const tempHelmDef = currentHelm?.value?.defense || 0;
     const tempArmorDef = currentArmor?.value?.defense || 0;
     const tempBootsDef = currentBoots?.value?.defense || 0;
@@ -101,7 +102,7 @@ const calculateStats = () => {
     defense.value = +tempLevelDef + +tempHelmDef + +tempArmorDef + +tempBootsDef + +tempAccessoryDef;
 
     // Defense Magic (Base Stats + Helm + Armor + Boots + Accessory)
-    const tempLevelDefMag = currentPlayerInfo.value.levels[currentLevel.value - 1].defenseMagic || 0; // Index Correction
+    const tempLevelDefMag = tempCurrentLevel.defenseMagic || 0; // Index Correction
     const tempHelmDefMag = currentHelm?.value?.defenseMagic || 0;
     const tempArmorDefMag = currentArmor?.value?.defenseMagic || 0;
     const tempBootsDefMag = currentBoots?.value?.defenseMagic || 0;
@@ -191,10 +192,9 @@ const calculateDamage = () => {
         const hits = currentAddition.value.hits.filter((index, key) => key < currentAdditionHits.value);
 
         // Addition Completion Calculation
-        const dmgMultiplier = [1, 1.25, 1.5, 1.75, 2][currentAdditionLevel.value.level - 1]; // Array is same for all Additions
+        const dmgMultiplier = currentAdditionLevel.value.hitModifier;
         const maxHitPercent = hits.length ? (hits.reduce((a, b) => a + b) * dmgMultiplier) : currentAdditionLevel.value.damage;
-        
-        damage.value = formula(maxHitPercent, dragoonModifierBonus, attack.value, currentLevel.value, currentEnemyInfo.value.defense, weaponElementBonus, ppu, epd, dragoonFieldBonus);
+        damage.value = formula(Math.floor(maxHitPercent), dragoonModifierBonus, attack.value, currentLevel.value, currentEnemyInfo.value.defense, weaponElementBonus, ppu, epd, dragoonFieldBonus);
     }
 
     if (currentDragoonAttack?.value && currentDragoonLevel?.value) {
@@ -223,7 +223,7 @@ const calculateDamage = () => {
         }
         
         const dDragoonModifierBonus = isPhysicial ? dLevelInfo.attack : dLevelInfo.attackMagic;
-        const dMaxHitPercent = currentDAdditionHits.value === "" ? 200 : [100, 110, 130, 160, 200][currentDAdditionHits.value - 1]; // Dragoon Default 200
+        const dMaxHitPercent = !isPhysicial ? currentDragoonAttack.value.maxHitPercent : [100, 110, 130, 160, 200][currentDAdditionHits.value - 1];
        
         dDamage.value = formula(dMaxHitPercent, dDragoonModifierBonus, dAttack, currentLevel.value, enemyDef, dWeaponElementBonus, ppu, epd, dDragoonFieldBonus);
     }
